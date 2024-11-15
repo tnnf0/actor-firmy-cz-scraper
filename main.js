@@ -18,33 +18,65 @@ const isObject = (val) => typeof val === 'object' && val !== null && !Array.isAr
 
 // Company page data extraction
 const extractData = () => {
-    const title = $('[itemprop="name"]').text().trim();
-    const address = $('[itemprop="address"]').text().trim();
-    const lat = $('[itemprop="latitude"]').attr('content');
-    const lon = $('[itemprop="longitude"]').attr('content');
-    const desc = $('[itemprop="description"]').text().trim();
-    const categories = $('.category').toArray().map(c => c.textContent.trim());
-    const rating = $('[itemprop="ratingValue"]').attr('content');
-    const rCount = $('[itemprop="ratingCount"]').text().trim();
-    const ratingCount = rCount ? parseInt(rCount) : 0;
-    const phone = $('[itemprop="telephone"]').text().trim();
-    const emails = $('.companyMail').toArray().map(e => e.textContent.trim());
-    const websites = $('.companyUrl').toArray().map(e => e.textContent.trim());
-    const result = {
-        "title": title,
-        "address": address.replace(/[\n\t]+/g, ''),
-        "latitude": lat ? parseFloat(lat) : null,
-        "longitude": lon ? parseFloat(lon) : null,
-        "description": desc,
-        "categories": categories,
-        "rating": (ratingCount && rating) ? parseInt(rating)/20 : null,
-        "ratingcount": ratingCount,
-        "phone": phone,
-        "emails": emails,
-        "website": websites[0] || null
+    // Název firmy
+    const companyName = $('.detailPrimaryTitle').text().trim();
+
+    // Adresa
+    const address = $('.detailAddress').contents().get(0).nodeValue.trim();
+
+    // Popis adresy (poznámka)
+    const addressDescription = $('.detailAddressDescription').text().trim();
+
+    // Webová stránka
+    const websites = $('.detailWebUrl').toArray().map(e => e.href.trim());
+
+    // Hodnocení
+    const ratingElement = $('mapy-review-badge-composed-new');
+    const rating = ratingElement.attr('rating') ? parseFloat(ratingElement.attr('rating')) : null;
+    const reviews = ratingElement.attr('reviews') ? parseInt(ratingElement.attr('reviews')) : null;
+
+    // Telefonní čísla
+    const phones = $('.detailPhone span').toArray().map(e => e.textContent.trim());
+
+    // E-maily
+    const emails = $('.detailEmail a').toArray().map(e => e.textContent.trim());
+
+    // IČO (Business ID)
+    const businessId = $('.detailBusinessInfo').first().text().trim();
+
+    // Sociální sítě
+    const socialNetworks = $('.detailSocialNetworks a').toArray().map(e => ({
+        platform: e.title.trim(),
+        url: e.href.trim(),
+    }));
+
+    // Vlastní URL pro kontakt (pokud existuje)
+    const contactLink = $('.detailDirection.custom a').attr('href') || null;
+
+    // Popis firmy
+    const companyDescription = $('.detailDescription p').text().trim();
+
+    // Další služby
+    const additionalServices = $('.detailDescription span[data-dot="filters"]').text().trim();
+
+    // Návratový objekt
+    return {
+        companyName,
+        address,
+        addressDescription,
+        website: websites[0] || null,
+        rating,
+        reviews,
+        phones,
+        emails,
+        businessId,
+        socialNetworks,
+        contactLink,
+        companyDescription,
+        additionalServices,
     };
-    return result;
 };
+
 
 Apify.main(async () => {
     // Get input of the actor.
