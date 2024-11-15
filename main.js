@@ -119,7 +119,7 @@ Apify.main(async () => {
     }
 
     // Define a pattern of URLs that the crawler should visit
-    const itemSelector = 'a.companyTitle';
+    const itemSelector = 'a.companyTitle.statCompanyDetail';
     const pageSelector = 'a.imgLink, #nextBtn';
     const pseudoUrls = [new Apify.PseudoUrl('https://www.firmy.cz/[.+]')];
 
